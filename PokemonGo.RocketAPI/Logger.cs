@@ -1,6 +1,7 @@
 ﻿#region
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using PokemonGo.RocketAPI.Logging;
 
@@ -15,6 +16,7 @@ namespace PokemonGo.RocketAPI
     public static class Logger
     {
         private static ILogger _logger;
+        private static int nProcessID = Process.GetCurrentProcess().Id;
 
         /// <summary>
         ///     Set the logger. All future requests to <see cref="Write(string,LogLevel,ConsoleColor)" /> will use that logger, any
@@ -45,7 +47,7 @@ namespace PokemonGo.RocketAPI
         private static void Log(string message)
         {
             // maybe do a new log rather than appending?
-            using (var log = File.AppendText("log.txt"))
+            using (var log = File.AppendText("log"+ nProcessID + ".txt"))
             {
                 log.WriteLine(message);
                 log.Flush();

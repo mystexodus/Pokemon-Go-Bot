@@ -1,6 +1,9 @@
 ﻿#region
 
 using System;
+using System.Configuration;
+using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using PokemonGo.RocketAPI.Exceptions;
@@ -14,6 +17,17 @@ namespace PokemonGo.RocketAPI.Console
         private static void Main(string[] args)
         {
             Logger.SetLogger(new ConsoleLogger(LogLevel.Info));
+
+            // Allow the user to specify a configuration file to use
+            if (args.Length != 0 && File.Exists(args[0]))
+            {
+                Logger.Write("Loading " + args[0] + " configuration.");
+                ((AppDomainSetup)typeof(AppDomain).GetProperty("FusionStore", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(AppDomain.CurrentDomain, null)).ConfigurationFile = args[0];
+            }
+            else
+            {
+                Logger.Write("Loading default configuration.");
+            }
 
             Task.Run(() =>
             {

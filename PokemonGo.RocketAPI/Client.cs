@@ -25,13 +25,19 @@ namespace PokemonGo.RocketAPI
         private AuthType _authType = AuthType.Google;
         private Request.Types.UnknownAuth _unknownAuth;
 
+        private string GetCoordsFilename()
+        {
+            return Settings.PtcUsername + "_" + "Coords.txt";
+        }
+
         public Client(ISettings settings)
         {
             Settings = settings;
-            if (File.Exists(Directory.GetCurrentDirectory() + "\\Coords.txt") &&
-                File.ReadAllText(Directory.GetCurrentDirectory() + "\\Coords.txt").Contains(":"))
+            string coordsFullPath = Path.Combine(Directory.GetCurrentDirectory(), GetCoordsFilename());
+            if (File.Exists(coordsFullPath) &&
+                File.ReadAllText(coordsFullPath).Contains(":"))
             {
-                var latlngFromFile = File.ReadAllText(Directory.GetCurrentDirectory() + "\\Coords.txt");
+                var latlngFromFile = File.ReadAllText(coordsFullPath);
                 var latlng = latlngFromFile.Split(':');
                 if (latlng[0].Length != 0 && latlng[1].Length != 0)
                 {
@@ -47,14 +53,14 @@ namespace PokemonGo.RocketAPI
                         }
                         else
                         {
-                            Logger.Write("Coordinates in \"Coords.txt\" file are invalid, using the default coordinates ",
+                            Logger.Write("Coordinates in \"" + GetCoordsFilename() + "\" file are invalid, using the default coordinates ",
                             LogLevel.Warning);
                             SetCoordinates(Settings.DefaultLatitude, Settings.DefaultLongitude, Settings.DefaultAltitude);
                         }
                     }
                     catch (FormatException)
                     {
-                        Logger.Write("Coordinates in \"Coords.txt\" file are invalid, using the default coordinates ",
+                        Logger.Write("Coordinates in \"" + GetCoordsFilename() + "\" file are invalid, using the default coordinates ",
                             LogLevel.Warning);
                         SetCoordinates(Settings.DefaultLatitude, Settings.DefaultLongitude, Settings.DefaultAltitude);
                     }
@@ -310,7 +316,7 @@ namespace PokemonGo.RocketAPI
         public void SaveLatLng(double lat, double lng)
         {
             var latlng = lat + ":" + lng;
-            File.WriteAllText(Directory.GetCurrentDirectory() + "\\Coords.txt", latlng);
+            File.WriteAllText(Path.Combine(Directory.GetCurrentDirectory(), GetCoordsFilename()), latlng);
         }
 
         public async Task<FortSearchResponse> SearchFort(string fortId, double fortLat, double fortLng)
